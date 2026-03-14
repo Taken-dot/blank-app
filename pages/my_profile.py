@@ -10,7 +10,7 @@ if 'user_id' not in st.session_state:
 
 user_id = st.session_state['user_id']
 
-cursor.execute("SELECT username, password, fName, surname, email FROM users WHERE id = ?", (user_id))
+cursor.execute("SELECT username, password, fName, surname, email FROM users WHERE id = ?", (user_id,))
 user = cursor.fetchone()
 
 if not user:
@@ -18,7 +18,7 @@ if not user:
       st.stop()
 
 
-user = username_in, password_in, first_name_in, second_name_in, email_in
+username_in, password_in, first_name_in, second_name_in, email_in = user
 
 with st.form("profile_form"):
         st.write("My Profile:")
@@ -31,7 +31,7 @@ with st.form("profile_form"):
         submitted = st.form_submit_button("Submit")
 
         if submitted:
-               cursor.execute("UPDATE users SET username = ?, password = ?, first_name = ?, second_name = ?, email = ? WHERE id = ?", (username, password, first_name, second_name, email, user_id))
+               cursor.execute("UPDATE users SET username = ?, password = ?, fName = ?, surname = ?, email = ? WHERE id = ?", (username, password, first_name, second_name, email, user_id))
                conn.commit()
                st.success("Your profile has bene updated!")
             
