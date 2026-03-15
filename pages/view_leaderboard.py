@@ -1,26 +1,27 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
-
-st.Page("pages/view_assignments.py")
+from header import show_header
 
 st.set_page_config(
-    page_title="Assignment Tracker",
+    page_title="Track Together",
     page_icon="👾",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        'About': "# Assignment Tracker. Made by Aparna, Tabitha, Tristan."
+        'About': "# Track Together. Made by Aparna, Tabitha, Tristan."
     }
 )
 
-col1, col2 = st.columns([6, 1])
-with col1:
-    if st.button("🏠"):
-        st.switch_page(st.Page("pages/home_page.py"))
-with col2:
-    if st.button("👤"):
-        st.switch_page(st.Page("pages/my_profile.py"))
+show_header()
+
+# ---------------------------------------------------
+# Get user information
+# ---------------------------------------------------
+user_id = st.session_state.get("user_id")
+
+if (user_id == None):
+    st.switch_page("streamlit_app.py")
 
 st.markdown("<h1 style='text-align: center;'>Assignment Leaderboard</h1>", unsafe_allow_html=True)
 

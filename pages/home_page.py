@@ -1,10 +1,14 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
+from header import show_header
 
 conn = sqlite3.connect("users.db", check_same_thread=False)
 
 userID = st.session_state.get("user_id")
+
+if (userID == None):
+    st.switch_page("streamlit_app.py")
 
 username_query = """
 SELECT username
@@ -14,30 +18,22 @@ WHERE id = ?
 
 name_df = pd.read_sql_query(username_query, conn, params=(userID,))
 
-st.Page("pages/home_page.py")
-
 st.set_page_config(
-    page_title="Assignment Tracker",
+    page_title="Track Together",
     page_icon="👾",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        'About': "# Assignment Tracker. Made by Aparna, Tabitha, Tristan."
+        'About': "# Track Together. Made by Aparna, Tabitha, Tristan."
     }
 )
 
-#st.markdown("<h2 style='text-align: right;'>👤</h2>", unsafe_allow_html=True)
+show_header()
 
-col1, col2 = st.columns([6, 1])
-with col2:
-    if st.button("👤"):
-        st.switch_page(st.Page("pages/my_profile.py"))
-
-st.divider()
 if not name_df.empty:
     username = name_df.iloc[0]
 
-    st.markdown(f"<h1 style='text-align: center;'>Welcome {username['username']}</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h1 style='text-align: center;'>Welcome to Track Together {username['username']}</h1>", unsafe_allow_html=True)
 
 st.write("") 
 st.write("") 
@@ -74,22 +70,12 @@ st.write("")
 
 cols = st.columns([3.2,4.4,4.4,4.4])
 
-with cols[1]:
-    if st.button("View Assignments"):
-     st.switch_page(st.Page("pages/view_assignments.py"))
-with cols[2]:
-    if st.button("View Leaderboard"):
-     st.switch_page(st.Page("pages/view_leaderboard.py"))
-with cols[3]:
-    if st.button("Connect"):
-     st.switch_page(st.Page("pages/connect.py"))
-
 st.write("")
 st.write("")
 
 bottomTextCols = st.columns([2.5,8,2.5])
 
-bottomTextCols[1].write("Welcome to the Assignment Tracker App! This app is designed to help you stay organized and on top of your assignments. You can view your assignments, check the leaderboard, and connect with others. Let's get started!")
+bottomTextCols[1].write("Welcome to the Track Together website! This website is designed to help you stay organized and on top of your assignments. You can view your assignments, check the leaderboard, and connect with others.")
 
 st.write("")
 

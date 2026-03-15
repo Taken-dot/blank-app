@@ -1,30 +1,23 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
+import time
+from header import show_header
 
 # ---------------------------------------------------
 # Page configuration
 # ---------------------------------------------------
 st.set_page_config(
-    page_title="Add Assignment",
+    page_title="Track Together",
     page_icon="👾",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        'About': "# Assignment Tracker. Made by Aparna, Tabitha, Tristan."
+        'About': "# Track Together. Made by Aparna, Tabitha, Tristan."
     }
 )
 
-# ---------------------------------------------------
-# Navigation buttons
-# ---------------------------------------------------
-col1, col2 = st.columns([6, 1])
-with col1:
-    if st.button("🏠 Home"):
-        st.switch_page("pages/home_page.py")
-with col2:
-    if st.button("👤 Profile"):
-        st.switch_page("pages/my_profile.py")
+show_header()
 
 # ---------------------------------------------------
 # Load modules
@@ -46,18 +39,21 @@ modules_conn.close()
 assign_conn = sqlite3.connect("assignments.db")
 assign_cursor = assign_conn.cursor()
 
-user_id = st.session_state.get("user_id")
+userID = st.session_state.get("user_id")
+
+if (userID == None):
+    st.switch_page("streamlit_app.py")
 
 # ---------------------------------------------------
 # Function to add new assignment
 # ---------------------------------------------------
-def add_assignment(name, module_name, module_code, start_date, due_date, user_id):
+def add_assignment(name, module_name, module_code, start_date, due_date, userID):
     assign_cursor.execute(
         """
         INSERT INTO assignments (name, module_name, module_code, start_date, due_date, progress, user_id)
         VALUES (?, ?, ?, ?, ?, ?, ?)
         """,
-        (name, module_name, module_code, start_date, due_date, 0, user_id)
+        (name, module_name, module_code, start_date, due_date, 0, userID)
     )
     assign_conn.commit()
 
@@ -91,6 +87,9 @@ with st.form("add_assignment_form"):
     # Submit button
     submitted = st.form_submit_button("Add Assignment")
     if submitted:
-        add_assignment(assignment_name, module_name, module_code, start_date, due_date, user_id)
+        add_assignment(assignment_name, module_name, module_code, start_date, due_date, userID)
         st.toast("Assignment successfully added! Good luck!", icon="✏️")
+        time.sleep(1)
         st.rerun()
+    else:
+        st.toast("Error, couldn't create an assignment. Please check your details or contact an admin!", icon="‼️")

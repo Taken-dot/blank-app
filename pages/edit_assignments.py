@@ -1,30 +1,28 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
+from header import show_header
 
 # ---------------------------------------------------
 # Page configuration
 # ---------------------------------------------------
 st.set_page_config(
-    page_title="Edit Assignment",
+    page_title="Track Together",
     page_icon="👾",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        'About': "# Assignment Tracker. Made by Aparna, Tabitha, Tristan."
+        'About': "# Track Together. Made by Aparna, Tabitha, Tristan."
     }
 )
 
-# ---------------------------------------------------
-# Navigation buttons
-# ---------------------------------------------------
-col1, col2 = st.columns([6, 1])
-with col1:
-    if st.button("🏠 Home"):
-        st.switch_page("pages/home_page.py")
-with col2:
-    if st.button("👤 Profile"):
-        st.switch_page("pages/my_profile.py")
+show_header()
+
+user_id = st.session_state.get("user_id")
+
+if (user_id == None):
+    st.switch_page("streamlit_app.py")
+
 
 # ---------------------------------------------------
 # Database connection

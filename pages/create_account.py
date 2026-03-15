@@ -1,10 +1,22 @@
 import streamlit as st
 import sqlite3
+from header import show_header
 
 conn = sqlite3.connect("users.db")
 cursor = conn.cursor()
 
-st.Page("pages/create_account.py")
+# ---------------------------------------------------
+# Page configuration
+# ---------------------------------------------------
+st.set_page_config(
+    page_title="Track Together",
+    page_icon="👾",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        'About': "# Track Together. Made by Aparna, Tabitha, Tristan."
+    }
+)
 
 st.title("Register for an account:")
 

@@ -1,14 +1,27 @@
 import streamlit as st
 import sqlite3
+from header import show_header
+
+# ---------------------------------------------------
+# Page configuration
+# ---------------------------------------------------
+st.set_page_config(
+    page_title="Track Together",
+    page_icon="👾",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        'About': "# Track Together. Made by Aparna, Tabitha, Tristan."
+    }
+)
+
+show_header()
 
 conn = sqlite3.connect("users.db")
 cursor = conn.cursor()
 
 if 'user_id' not in st.session_state:
-      st.warning("You cannot view your details, please log in!")
-      st.stop()
-
-user_id = st.session_state['user_id']
+      st.switch_page("streamlit_app.py")
 
 cursor.execute("SELECT username, password, fName, surname, email FROM users WHERE id = ?", (user_id,))
 user = cursor.fetchone()
@@ -33,5 +46,5 @@ with st.form("profile_form"):
         if submitted:
                cursor.execute("UPDATE users SET username = ?, password = ?, fName = ?, surname = ?, email = ? WHERE id = ?", (username, password, first_name, second_name, email, user_id))
                conn.commit()
-               st.success("Your profile has bene updated!")
+               st.toast(body="Your profile has been updated!",icon="👾")
             

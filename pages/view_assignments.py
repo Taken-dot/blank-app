@@ -2,35 +2,30 @@ import streamlit as st
 import pandas as pd
 import sqlite3
 import time
+from header import show_header
 
 # ---------------------------------------------------
 # Page config
 # ---------------------------------------------------
 st.set_page_config(
-    page_title="Assignment Tracker",
+    page_title="Track Together",
     page_icon="👾",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        'About': "# Assignment Tracker. Made by Aparna, Tabitha, Tristan."
+        'About': "# Track Together. Made by Aparna, Tabitha, Tristan."
     }
 )
 
-# ---------------------------------------------------
-# Navigation buttons (Home / Profile)
-# ---------------------------------------------------
-col1, col2 = st.columns([6, 1])
-with col1:
-    if st.button("🏠 Home"):
-        st.switch_page("pages/home_page.py")
-with col2:
-    if st.button("👤 Profile"):
-        st.switch_page("pages/my_profile.py")
+show_header()
 
 # ---------------------------------------------------
 # Get user information
 # ---------------------------------------------------
 user_id = st.session_state.get("user_id")
+
+if (user_id == None):
+    st.switch_page("streamlit_app.py")
 
 # Connect to users database to get username
 users_conn = sqlite3.connect("users.db")
@@ -70,10 +65,17 @@ df_completed = pd.read_sql_query(query_completed, assign_conn, params=(user_id,)
 # ---------------------------------------------------
 if not df_active.empty:
     next_due = df_active.iloc[0]
-    st.info(
-        f"Next deadline: **{next_due['name']}** "
-        f"({next_due['module_code']}) due {next_due['due_date']}"
-    )
+    if pd.to_datetime(next_due["due_date"]).date() < pd.Timestamp.today().date():
+        st.warning(
+            f"OVERDUE deadline: **{next_due['name']}** "
+            f"({next_due['module_code']}) due {next_due['due_date']}"
+        )
+        st.toast(body="You have an overdue deadline! Don't forget to submit and mark it as complete!", icon="⚠️")
+    else:
+        st.info(
+            f"Next deadline: **{next_due['name']}** "
+            f"({next_due['module_code']}) due {next_due['due_date']}"
+        )
 else:
     st.success("You have no active assignments right now.")
     st.toast(body="Congrats, you have no active assignments!", icon="🎉")
@@ -82,7 +84,7 @@ else:
 # Active assignments table
 # ---------------------------------------------------
 # Table header
-header_cols = st.columns([4, 3, 1.5, 1.2, 1, 0.85, 0.78, 0.96, 1.5])
+header_cols = st.columns([4, 3, 1.5, 1.2, 1, 0.97, 0.9, 1.2, 1.5])
 header_cols[0].write("**Name**")
 header_cols[1].write("**Module Name**")
 header_cols[2].write("**Module Code**")
@@ -97,13 +99,18 @@ st.divider()
 
 # Display each active assignment row
 for _, row in df_active.iterrows():
-    cols = st.columns([4, 3, 1.5, 1.2, 1, 0.85, 0.78, 0.96, 1.5])
+    cols = st.columns([4, 3, 1.5, 1.2, 1, 0.97, 0.9, 1.2, 1.5])
 
     # Assignment info
     cols[0].write(row["name"])
     cols[1].write(row["module_name"])
     cols[2].write(row["module_code"])
-    cols[3].write(row["due_date"])
+    
+    due_date = pd.to_datetime(row["due_date"])
+    if not row["progress"] < 100 and due_date < pd.Timestamp.today():
+        cols[3].markdown(f":red[{row['due_date']}]")
+    else:
+        cols[3].write(row["due_date"])
 
     # Progress coloring
     progress = row["progress"]
@@ -160,7 +167,7 @@ st.divider()
 # ---------------------------------------------------
 st.header("Completed Assignments")
 for _, row in df_completed.iterrows():
-    cols = st.columns([4, 3, 1.5, 1.2, 1, 0.85, 0.78, 0.96, 1.5])
+    cols = st.columns([4, 3, 1.5, 1.2, 1, 0.97, 0.9, 1, 1.7])
     cols[0].write(row["name"])
     cols[1].write(row["module_name"])
     cols[2].write(row["module_code"])

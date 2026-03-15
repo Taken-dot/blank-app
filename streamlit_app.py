@@ -43,6 +43,9 @@ def login_page():
                     'email': user[5]
                 }
                 st.session_state['user_id'] = user[0]
+                
+                st.session_state['theme'] = "dark"
+
                 st.switch_page(st.Page("pages/home_page.py"))
             else:
                 st.error("Invalid username or password")

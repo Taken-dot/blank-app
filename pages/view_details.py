@@ -2,30 +2,27 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 import time
+from header import show_header
 
 # ---------------------------------------------------
 # Page config
 # ---------------------------------------------------
 st.set_page_config(
-    page_title="Assignment Details",
+    page_title="Track Together",
     page_icon="👾",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        'About': "# Assignment Tracker. Made by Aparna, Tabitha, Tristan."
+        'About': "# Track Together. Made by Aparna, Tabitha, Tristan."
     }
 )
 
-# ---------------------------------------------------
-# Navigation buttons (Home / Profile)
-# ---------------------------------------------------
-col1, col2 = st.columns([6, 1])
-with col1:
-    if st.button("🏠 Home"):
-        st.switch_page("pages/home_page.py")
-with col2:
-    if st.button("👤 Profile"):
-        st.switch_page("pages/my_profile.py")
+show_header()
+
+user_id = st.session_state.get("user_id")
+
+if (user_id == None):
+    st.switch_page("streamlit_app.py")
 
 # ---------------------------------------------------
 # Helper function for progress bar color
@@ -51,7 +48,7 @@ assignment_query = "SELECT * FROM assignments WHERE id = ?"
 assignment_df = pd.read_sql_query(assignment_query, conn, params=(assignment_id,))
 
 if assignment_df.empty:
-    st.error("Assignment not found.")
+    st.warning('Assignment not found.', icon="❗")
     st.stop()
 
 assignment = assignment_df.iloc[0]
@@ -78,12 +75,12 @@ cursor.execute(
 conn.commit()
 
 # Display toast notifications based on progress
-if progress_percent == 100:
+if progress_percent == 100 and is_complete == False:
     st.toast("This assignment has reached 100%. Consider marking it complete.", icon="✅", duration=7)
     st.balloons()
-elif progress_percent >= 74:
+elif progress_percent >= 74 and is_complete == False:
     st.toast("This assignment has reached a first class! Try to reach 100%.", icon="✅", duration=7)
-elif progress_percent >= 40:
+elif progress_percent >= 40 and is_complete == False:
     st.toast("Assignment has reached 40% progress. Keep going!", icon="✅", duration=7)
 
 # ---------------------------------------------------
@@ -92,11 +89,11 @@ elif progress_percent >= 40:
 color = progress_color(progress_percent)
 st.markdown(
     f"""
-    <div style="background-color:#eee;border-radius:8px;height:22px;">
+    <div style="background-color:#736968;border-radius:8px;height:10px;">
         <div style="
             width:{progress_percent}%;
             background-color:{color};
-            height:22px;
+            height:10px;
             border-radius:8px;
             text-align:center;
             color:white;
@@ -110,8 +107,8 @@ st.markdown(f"### :{color}[{progress_percent}% complete]")
 st.caption(f"{completed_tasks} of {total_tasks} tasks completed")
 
 if is_complete:
-    st.success("This assignment has been marked as completed.")
-    st.toast("Tasks are locked, but notes can still be edited.", icon="🔒", duration=30)
+    st.success("This assignment has been marked as completed.",icon="✅")
+    st.warning("Tasks are locked, but notes can still be edited.",icon="⚠️")
 
 st.divider()
 
